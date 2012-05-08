@@ -5,20 +5,20 @@ CVSROOT    = $(HG2CVS_ROOT)/cvsrepo/cvsroot
 
 export CVSROOT
 
-.PHONY: prepare
-prepare: hgrepo.tar.bz2 purge
+all: run
+
+prepare $(HG_REPO)/source $(HG_REPO)/gate: hgrepo.tar.bz2 purge
 	mkdir $(HG_REPO) $(CVS_REPO)
 	tar xf hgrepo.tar.bz2 -C $(HG_REPO)
 	echo "[hooks]"                                             > $(HG_REPO)/gate/.hg/hgrc
 	echo "changegroup = $(HG2CVS_ROOT)/hg2cvs.sh $(CVS_REPO)" >> $(HG_REPO)/gate/.hg/hgrc
-	$(MAKE) clean
 
 .PHONY: purge
 purge:
 	rm -rf $(HG_REPO) $(CVS_REPO)
 
 .PHONY: clean
-clean:
+clean $(CVS_REPO)/default $(CVS_REPO)/cvsroot: $(HG_REPO)/gate
 	rm -rf $(CVS_REPO)/* $(HG_REPO)/gate/.hg/hg2cvs*
 	hg -R $(HG_REPO)/gate strip --no-backup 0
 	hg clone $(HG_REPO)/gate $(CVS_REPO)/default
