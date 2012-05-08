@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# set -x
-
 DEBUG=0
-DRY_RUN=1
+DRY_RUN=0
 
 if [ -z "$DRY_RUN" ] ; then
     DRY_RUN=0
@@ -23,11 +21,24 @@ debug()
 
 do_cvs()
 {
-    echo cvs "$@"
     if [ $DRY_RUN -ne 0 ] ; then
         cvs -n "$@"
     else
         cvs "$@"
+    fi
+}
+
+add_cvsfolder()
+{
+    cvsflag=
+    if [ $DRY_RUN -eq 1 ]
+    then
+        cvsflag=-n
+    fi
+
+    if [ "$1" != "." ]
+    then
+        perl -e "@a=split('/',\"$1\");for(@a){system(\"cvs $cvsflag add \$_\");chdir(\"\$_\");}"
     fi
 }
 
@@ -68,20 +79,29 @@ do_cvsimport()
     debug "changed: $changed_files"
     debug "removed: $removed_files"
 
-##    if [ -n "$added_files" ] ; then
-##        local orig_dir=$(pwd)
-##        for i in $added_files
-##        do
-##            cd $hg_root/$(dirname $f)
-##            do_cvs add $(basename $f)
-##        done
-##        cd $orig_dir
-##    fi
-##
-##    if [ -n "$deleted_files" ] ; then
-##        do_cvs remove -f $deleted_files
-##    fi
-##
+    if [ -n "$added_files" ] ; then
+        for i in $added_files
+        do
+            pushd .
+            add_cvsfolder $(dirname $i)
+            if [ $? -ne 0 ]; then
+                return 1
+            fi
+
+            cd $(dirname $i)
+
+            do_cvs add $(basename $i)
+            if [ $? -ne 0 ]; then
+                return 1
+            fi
+            popd
+        done
+    fi
+
+    if [ -n "$deleted_files" ] ; then
+        do_cvs remove -f $deleted_files
+    fi
+
 
     local descfile=/tmp/hg2cvs.desc.$hg_rev
     local revspec=$hg_rev
@@ -90,13 +110,16 @@ do_cvsimport()
     fi
 
     hg log --template "{desc}\n-- {author} {date|isodatesec} commit {node|short}\n\n" -r "$revspec" > $descfile
-    #do_cvs -Q commit -F $descfile $added_files $deleted_files $changed_files
+    do_cvs -Q commit -F $descfile $added_files $deleted_files $changed_files
     local ret=$?
     rm $descfile
 
     for t in $tags ; do
         echo Tagging with $t
-    #do_cvs -Q tag -F -R $t .
+        do_cvs -Q tag -F -R $t .
+        if [ $? -ne 0 ]; then
+            return 1
+        fi
     done
     return $ret
 }
