@@ -35,11 +35,22 @@ add_cvsfolder()
     then
         cvsflag=-n
     fi
+    a=$1
+    p=
+    first="/*"
+    second="*/"
 
-    if [ "$1" != "." ]
-    then
-        perl -e "@a=split('/',\"$1\");for(@a){system(\"cvs $cvsflag add \$_\");chdir(\"\$_\");}"
-    fi
+    if [ "$a" != "." ]
+    then 
+        while [ "$a" != "$p" ]
+        do
+            p=$a
+            f=${a/$first}
+            a=${a#$second}
+            cvs $cvsflag add $f
+            cd $f
+        done
+    fi  
 }
 
 do_cvsimport()
@@ -48,7 +59,7 @@ do_cvsimport()
     local is_merge="$2"
     local tags="$3"
 
-    hg up -C $rev
+    hg up -C $hg_rev
     if [ $? -ne 0 ] ; then
         warning "Unable to update working copy to $rev"
         return 1
@@ -88,8 +99,6 @@ do_cvsimport()
                 return 1
             fi
 
-            cd $(dirname $i)
-
             do_cvs add $(basename $i)
             if [ $? -ne 0 ]; then
                 return 1
@@ -98,8 +107,8 @@ do_cvsimport()
         done
     fi
 
-    if [ -n "$deleted_files" ] ; then
-        do_cvs remove -f $deleted_files
+    if [ -n "$removed_files" ] ; then
+        do_cvs remove -f $removed_files
     fi
 
 
