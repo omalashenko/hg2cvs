@@ -222,38 +222,3 @@ done
 
 echo "============== done hg2cvs =============="
 
-## hg_root=$(hg root)
-## perror "Not in mercurial repo"
-## cd $hg_root
-## 
-## CVSIMPORT_HISTORY=$hg_root/.hg/cvsimport.history
-## 
-## if [ $# -lt 1 ] ; then
-##     echo "At least 1 hg revision to import should be specified"
-##     echo "Usage: $0 [rev] ..."
-##     exit 1
-## fi
-## 
-## for rev in $@ ; do
-##     hg_rev=$(hg id -i -r $rev)
-##     perror "Unable to identify mercurial revision for $rev"
-## 
-##     echo Processing "$rev ($hg_rev)"
-## 
-##     hg up -C -r $hg_rev
-##     perror "Unable to update to $rev ($hg_rev)"
-## 
-##     if [ -n "$(grep $hg_rev $CVSIMPORT_HISTORY 2>/dev/null)" ] ; then
-##         echo "Skipping already CVS-imported $rev ($hg_rev)"
-##         continue
-##     fi
-## 
-##     do_cvsimport $hg_rev
-## 
-##     if [ $DRY_RUN -eq 0 ] ; then
-##         echo $(hg log -r $hg_rev -l 1 --template "{rev}:$hg_rev") >> $CVSIMPORT_HISTORY
-##     fi
-## done
-## 
-## cd - > /dev/null
-
