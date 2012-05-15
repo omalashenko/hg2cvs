@@ -111,7 +111,6 @@ do_cvsimport()
         do_cvs remove -f $removed_files
     fi
 
-
     local descfile=/tmp/hg2cvs.desc.$hg_rev
     local revspec=$hg_rev
     if [ -n "$is_merge" ] ; then
@@ -123,13 +122,6 @@ do_cvsimport()
     local ret=$?
     rm $descfile
 
-    for t in $tags ; do
-        echo Tagging with $t
-        do_cvs -Q tag -F -R $t .
-        if [ $? -ne 0 ]; then
-            return 1
-        fi
-    done
     return $ret
 }
 
@@ -181,6 +173,14 @@ export_commits()
         fi
 
         echo $last_imported_rev > $history_file
+
+        for t in $tags ; do
+            echo Tagging with $t
+            do_cvs -Q tag -F -R $t .
+            if [ $? -ne 0 ]; then
+                warning CVS tag has failed: $t
+            fi
+        done
 
         if [ -n "$(echo $heads | grep $last_imported_rev)" ] ; then
             break;
