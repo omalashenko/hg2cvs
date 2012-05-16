@@ -1,0 +1,18 @@
+# Get all of the files in the selected revision
+# and stringify them, whatever that means
+# but do not 'tabindent' or wrap them to 68/76 columns
+# Without first setting changeset to the list of files
+# you won't get output from subsequent lines
+changeset = '{file_adds}{file_mods}{file_dels}'
+# List modified files, one per line
+# preceded by M to mimic `hg status`
+file_mod      = 'M {file_mod}\n'
+last_file_mod = 'M {file_mod}\n'
+# List added files, one per line
+# preceded by A to mimic `hg status`
+file_add      = 'A {file_add}\n'
+last_file_add = 'A {file_add}\n'
+# List deleted files, one per line
+# preceded by ! to mimic `hg status`
+file_del      = 'R {file_del}\n'
+last_file_del = 'R {file_del}\n'
