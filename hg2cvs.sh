@@ -44,7 +44,9 @@ add_cvsfolder()
             p="$a"
             f="${a/$first}"
             a="${a#$second}"
-            do_cvs -Q add "$f"
+            if [ ! -d "$f/CVS" ] ; then
+                do_cvs -Q add "$f"
+            fi
             cd "$f"
         done
     fi
@@ -162,15 +164,15 @@ do_cvsimport()
     fi
 
     # real commit, we don't expect it to fail
+    # if succeeded, commit releases all the locks held
     do_cvs -Q commit -F $descfile "${added_files[@]}" "${deleted_files[@]}" "${changed_files[@]}"
     local ret=$?
     if [ $ret -ne 0 ] ; then
         warning CVS commit failed, revision $hg_rev might be half-commited to CVS
+        cvs_unlock_files "${deleted_files[@]}" "${changed_files[@]}"
     fi
 
     rm $descfile
-    cvs_unlock_files "${deleted_files[@]}" "${changed_files[@]}"
-
     return $ret
 }
 
