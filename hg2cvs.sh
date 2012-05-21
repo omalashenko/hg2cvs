@@ -4,6 +4,7 @@
 
 DEBUG=0
 DRY_RUN=0
+USE_CVS_LOCK=0
 
 if [ -z "$DRY_RUN" ] ; then
     DRY_RUN=0
@@ -54,15 +55,19 @@ add_cvsfolder()
 
 cvs_lock_files()
 {
-    if [ "x$@" != "x" ] ; then
-        do_cvs -Q admin -l "$@"
+    if [ "$USE_CVS_LOCK" = "1" ] ; then
+        if [ "x$@" != "x" ] ; then
+            do_cvs -Q admin -l "$@"
+        fi
     fi
 }
 
 cvs_unlock_files()
 {
-    if [ "x$@" != "x" ] ; then
-        do_cvs -Q admin -u "$@"
+    if [ "$USE_CVS_LOCK" = "1" ] ; then
+        if [ "x$@" != "x" ] ; then
+            do_cvs -Q admin -u "$@"
+        fi
     fi
 }
 
