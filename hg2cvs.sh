@@ -24,9 +24,9 @@ debug()
 do_cvs()
 {
     if [ $DRY_RUN -ne 0 ] ; then
-        cvs -n "$@"
+        cvs -d "$CVS_ROOT" -n "$@"
     else
-        cvs "$@"
+        cvs -d "$CVS_ROOT" "$@"
     fi
 }
 
@@ -241,7 +241,13 @@ export_commits()
 # ENTRY POINT                                                                 #
 ###############################################################################
 
-CVS_SANDBOX="$1"
+if [ $# -ne 2 ] ; then
+    echo "Usage: hg2cvs <cvsroot> <cvs-sandbox-path>"
+    exit 1
+fi
+
+CVS_ROOT="$1"
+CVS_SANDBOX="$2"
 HG_FILES_STYLE=$(dirname $0)/files.style
 
 hg_branches=$(hg branches | cut -f 1 -d ' ')
