@@ -92,7 +92,7 @@ do_cvsimport()
 
     local added_files=()
     local changed_files=()
-    local removed_files=()
+    local deleted_files=()
 
     while read line
     do
