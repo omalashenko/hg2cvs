@@ -258,7 +258,7 @@ CVS_SANDBOX="$2"
 HG_FILES_STYLE=$(dirname $0)/files.style
 
 hg_branches=$(hg branches | cut -f 1 -d ' ')
-lock_file="$(pwd)/.hg/hg2cvs.lock"
+lock_file="$(hg root)/.hg/hg2cvs.lock"
 
 lockfile -r0 $lock_file
 
