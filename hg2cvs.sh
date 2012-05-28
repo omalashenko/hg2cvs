@@ -263,6 +263,10 @@ lock_file="$(hg root)/.hg/hg2cvs.lock"
 lockfile -r0 $lock_file
 
 if [ $? -ne 0 ]; then
+    warning "Someone else is currently using hg2cvs bridge,
+        your changes have been submitted to the Mercurial repository but
+        not yet committed to CVS. They will be committed to CVS next
+        time someone pushes to the Mercurial repository."
     exit 1
 fi
 
