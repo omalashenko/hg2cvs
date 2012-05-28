@@ -258,6 +258,17 @@ CVS_SANDBOX="$2"
 HG_FILES_STYLE=$(dirname $0)/files.style
 
 hg_branches=$(hg branches | cut -f 1 -d ' ')
+lock_file="$(hg root)/.hg/hg2cvs.lock"
+
+lockfile -r0 $lock_file
+
+if [ $? -ne 0 ]; then
+    warning "Someone else is currently using hg2cvs bridge,
+        your changes have been submitted to the Mercurial repository but
+        not yet committed to CVS. They will be committed to CVS next
+        time someone pushes to the Mercurial repository."
+    exit 1
+fi
 
 echo "============== hg2cvs =============="
 
@@ -283,5 +294,6 @@ do
     popd                > /dev/null 2>&1
 done
 
+rm -f $lock_file
 echo "============== done hg2cvs =============="
 
